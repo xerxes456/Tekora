@@ -1,0 +1,22 @@
+<!-- PAGE: Maintenance Requests -->
+<div class="page" id="page-requests">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Maintenance Requests</div>
+      <div class="page-subtitle">Log and track all maintenance work orders</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('request')">
+      <svg width="14" height="14"><use href="images/icons.svg#icon-plus"/></svg>New Request
+    </button>
+  </div>
+  <div class="card" style="padding:14px 16px">
+    <div class="filter-row" id="req-filter-row">
+      <div class="filter-chip active" onclick="setReqFilter('all',this)">All</div>
+      <div class="filter-chip" onclick="setReqFilter('open',this)">Open</div>
+      <div class="filter-chip" onclick="setReqFilter('in_progress',this)">In Progress</div>
+      <div class="filter-chip" onclick="setReqFilter('completed',this)">Completed</div>
+      <div class="filter-chip" onclick="setReqFilter('high',this)">🔴 High Priority</div>
+    </div>
+  </div>
+  <div class="card" style="padding:0"><div class="table-wrap" id="requests-table-wrap"></div></div>
+</div>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" fill="none">
+  <rect width="40" height="40" rx="9" fill="#00e5c3"/>
+  <path d="M26.7 10.3a1.5 1.5 0 000 2.1l2.4 2.4a1.5 1.5 0 002.1 0l4.16-4.16a9 9 0 01-11.91 11.91L15.27 30.8a3.18 3.18 0 01-4.5-4.5l8.32-8.32A9 9 0 0130.86 6.14L26.7 10.3z"
+    stroke="#09090b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="27" font-family="DM Sans, sans-serif" font-size="22" font-weight="700" letter-spacing="-0.5" fill="#f0f0f4">Teko</text>
+  <text x="100" y="27" font-family="DM Sans, sans-serif" font-size="22" font-weight="700" letter-spacing="-0.5" fill="#00e5c3">ra</text>
+</svg>

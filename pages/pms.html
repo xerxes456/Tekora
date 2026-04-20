@@ -1,0 +1,21 @@
+<!-- PAGE: Scheduled PMS -->
+<div class="page" id="page-pms">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Scheduled PMS</div>
+      <div class="page-subtitle">Planned maintenance tasks</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label class="form-label" style="margin:0">Date:</label>
+      <input type="date" class="form-input" id="pms-date-pick" style="width:160px" onchange="loadPMSPage()"/>
+    </div>
+  </div>
+  <div class="card" id="pms-prog-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:600" id="pms-prog-label">Loading…</div>
+      <div class="mono text-accent" id="pms-prog-pct" style="font-size:13px;font-weight:700">—</div>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="pms-main-prog" style="background:var(--accent)"></div></div>
+  </div>
+  <div id="pms-items-list"></div>
+</div>

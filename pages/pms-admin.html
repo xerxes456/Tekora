@@ -1,0 +1,18 @@
+<!-- PAGE: Admin — PMS Templates -->
+<div class="page" id="page-pms-admin">
+  <div class="page-header">
+    <div>
+      <div class="page-title">PMS Schedule Templates</div>
+      <div class="page-subtitle">Create and manage planned maintenance schedules</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="bulkGenPMS()">
+        <svg width="14" height="14"><use href="images/icons.svg#icon-bulk-cal"/></svg>Bulk Generate 30 Days
+      </button>
+      <button class="btn btn-primary" onclick="openModal('pms-schedule')">
+        <svg width="14" height="14"><use href="images/icons.svg#icon-plus"/></svg>Add Schedule
+      </button>
+    </div>
+  </div>
+  <div class="card" style="padding:0"><div class="table-wrap" id="pms-admin-table-wrap"></div></div>
+</div>

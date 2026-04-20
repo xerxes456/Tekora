@@ -1,0 +1,21 @@
+<!-- PAGE: Admin — Reports -->
+<div class="page" id="page-reports">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Reports &amp; Analytics</div>
+      <div class="page-subtitle">Maintenance performance insights and KPIs</div>
+    </div>
+    <button class="btn btn-ghost" onclick="loadReports()">
+      <svg width="14" height="14"><use href="images/icons.svg#icon-refresh"/></svg>Refresh
+    </button>
+  </div>
+  <div class="stats-row" id="report-stats"></div>
+  <div class="report-grid">
+    <div class="card"><div class="card-title">PMS Completion by Facility</div><div id="report-platform-bars"></div></div>
+    <div class="card"><div class="card-title">Request Status Breakdown</div><div id="report-status-bars"></div></div>
+  </div>
+  <div class="report-grid">
+    <div class="card"><div class="card-title">Running Hours per Equipment</div><div id="report-hours-bar" style="margin-top:8px"></div></div>
+    <div class="card"><div class="card-title">Requests by Priority</div><div id="report-priority-bar" style="margin-top:8px"></div></div>
+  </div>
+</div>

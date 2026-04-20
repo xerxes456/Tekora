@@ -1,0 +1,69 @@
+<!-- PAGE: Preferences -->
+<div class="page" id="page-preferences">
+  <div class="page-header">
+    <div>
+      <div class="page-title">My Preferences</div>
+      <div class="page-subtitle">Personalise your workspace and manage your account</div>
+    </div>
+  </div>
+  <!-- THEME PICKER -->
+  <div class="pref-section">
+    <div class="pref-section-title">Appearance</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.6">
+      Pick a colour theme. Your choice is saved and applied every time you sign in on this device.
+    </p>
+    <div class="theme-picker-grid" id="theme-picker-grid">
+      <div class="theme-swatch swatch-midnight" data-theme="midnight" onclick="applyTheme('midnight')" title="Midnight Teal — dark, focused">
+        <div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div>
+        <div class="swatch-name">Midnight</div>
+      </div>
+      <div class="theme-swatch swatch-arctic" data-theme="arctic" onclick="applyTheme('arctic')" title="Arctic Blue — dark, cool">
+        <div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div>
+        <div class="swatch-name">Arctic</div>
+      </div>
+      <div class="theme-swatch swatch-warm" data-theme="warm" onclick="applyTheme('warm')" title="Warm Slate — dark, amber">
+        <div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div>
+        <div class="swatch-name">Warm Slate</div>
+      </div>
+      <div class="theme-swatch swatch-cloud" data-theme="cloud" onclick="applyTheme('cloud')" title="Cloud — light, clean">
+        <div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div>
+        <div class="swatch-name">Cloud</div>
+      </div>
+      <div class="theme-swatch swatch-forest" data-theme="forest" onclick="applyTheme('forest')" title="Forest — light, earthy">
+        <div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div>
+        <div class="swatch-name">Forest</div>
+      </div>
+    </div>
+  </div>
+  <!-- PROFILE -->
+  <div class="pref-section">
+    <div class="pref-section-title">Profile</div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="pref-firstname" placeholder="First Name"/></div>
+      <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="pref-lastname" placeholder="Last Name"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Position</label><input class="form-input" id="pref-position" placeholder="Your job title"/></div>
+    <button class="btn btn-primary btn-sm" onclick="savePreferences()">Save Profile</button>
+  </div>
+  <!-- FACILITY -->
+  <div class="pref-section">
+    <div class="pref-section-title">Facility Assignment</div>
+    <div class="form-group">
+      <label class="form-label">Current Facility</label>
+      <select class="form-input" id="pref-facility"><option value="">Select your facility</option></select>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="changeFacility()">Change Facility</button>
+  </div>
+  <!-- SECURITY -->
+  <div class="pref-section">
+    <div class="pref-section-title">Access &amp; Security</div>
+    <div class="form-group">
+      <label class="form-label">New Password</label>
+      <input type="password" class="form-input" id="pref-newpw" placeholder="Leave blank to keep current"/>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="changePassword()">Update Password</button>
+      <button class="btn btn-ghost btn-sm" id="admin-request-btn" onclick="requestAdminRole()">Request Admin Role</button>
+    </div>
+  </div>
+</div>

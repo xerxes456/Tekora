@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Tekora — Computerized Maintenance Management System"/>
+  <meta name="theme-color" content="#00e5c3"/>
+  <title>Tekora — Maintenance Management System</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg"/>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/tekora.css"/>
+
+  <!-- Firebase SDK (must precede firebase.config.js) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <!-- Database Config (edit this file to connect your Firebase project) -->
+  <script src="js/firebase.config.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     SVG ICON SPRITE  (loaded once, referenced everywhere)
+══════════════════════════════════════════════════════ -->
+<div style="display:none" id="svg-sprite-container"></div>
+<script>
+  // Inline the SVG sprite so <use href="images/icons.svg#..."> works cross-origin
+  fetch('images/icons.svg')
+    .then(r => r.text())
+    .then(svg => { document.getElementById('svg-sprite-container').innerHTML = svg; })
+    .catch(() => {}); // graceful — inline SVGs in JS files are fallbacks
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     LOADING OVERLAY
+══════════════════════════════════════════════════════ -->
+<div id="loading-overlay">
+  <div style="width:44px;height:44px;background:var(--accent);border-radius:11px;display:flex;align-items:center;justify-content:center">
+    <img src="images/logo-icon.svg" alt="Tekora" width="26" height="26" style="filter:invert(1) brightness(0)"/>
+  </div>
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--text3)">Starting Tekora…</div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     AUTH VIEW
+══════════════════════════════════════════════════════ -->
+<div id="auth-view">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <img src="images/logo-icon.svg" alt="Tekora icon" width="30" height="30" style="filter:invert(1) brightness(0)"/>
+      </div>
+      <h1>Teko<em style="color:var(--accent)">ra</em></h1>
+      <p>Computerized Maintenance Management</p>
+    </div>
+
+    <div id="auth-alert" class="auth-alert"></div>
+
+    <div class="auth-tabs" id="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" id="l-email" placeholder="you@company.com" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="l-pw" placeholder="••••••••"
+               autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="btn btn-primary" id="login-btn"
+              style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:6px"
+              onclick="doLogin()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+          <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Sign In
+      </button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register-form" style="display:none">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">First Name *</label>
+          <input type="text" class="form-input" id="r-firstname" placeholder="John"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name *</label>
+          <input type="text" class="form-input" id="r-lastname" placeholder="Doe"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Position</label>
+        <input type="text" class="form-input" id="r-position" placeholder="e.g. Maintenance Technician"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address *</label>
+        <input type="email" class="form-input" id="r-email" placeholder="you@company.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password *</label>
+        <input type="password" class="form-input" id="r-pw" placeholder="Min. 8 characters"
+               onkeydown="if(event.key==='Enter')doRegister()"/>
+      </div>
+      <button class="btn btn-primary" id="register-btn"
+              style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:6px"
+              onclick="doRegister()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        Create Account
+      </button>
+      <div style="margin-top:14px;background:var(--surface2);border-radius:8px;padding:10px 13px;font-size:11px;color:var(--text3);border:1px solid var(--border)">
+        <strong style="color:var(--text2)">Note:</strong> Role is assigned by the Admin after registration.
+        Default login: <span style="color:var(--accent)">Admin@tekora.example</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     APP VIEW
+══════════════════════════════════════════════════════ -->
+<div id="app-view">
+
+  <!-- ── SIDEBAR (Desktop ≥ 1025px) ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <img src="images/logo-icon.svg" alt="Tekora" width="18" height="18"
+             style="filter:invert(1) brightness(0)"/>
+      </div>
+      <div class="logo-text">Teko<em>ra</em></div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-group-label">Operations</div>
+      <div class="nav-link active" id="nav-dashboard" onclick="goPage('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>Dashboard
+      </div>
+      <div class="nav-link" id="nav-requests" onclick="goPage('requests',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>Maint. Requests
+      </div>
+      <div class="nav-link" id="nav-equipment" onclick="goPage('equipment',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/>
+        </svg>Equipment
+      </div>
+      <div class="nav-link" id="nav-pms" onclick="goPage('pms',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>Scheduled PMS
+      </div>
+      <div class="nav-link" id="nav-preferences" onclick="goPage('preferences',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a1 1 0 000 1.41l1.41 1.42a1 1 0 001.41 0 9 9 0 10-2.82 2.82 1 1 0 000-1.41l-1.41-1.42a1 1 0 00-1.41 0A7 7 0 1119.07 4.93z"/>
+        </svg>Preferences
+      </div>
+
+      <!-- Admin nav items — hidden until isAdmin() = true -->
+      <div class="nav-group-label admin-section" style="display:none">Admin Panel</div>
+      <div class="nav-link admin-section" id="nav-facilities" onclick="goPage('facilities',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>Facilities
+      </div>
+      <div class="nav-link admin-section" id="nav-admin-equipment" onclick="goPage('admin-equipment',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+        </svg>All Equipment
+      </div>
+      <div class="nav-link admin-section" id="nav-activities" onclick="goPage('activities',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/>
+        </svg>Maint. Activities
+      </div>
+      <div class="nav-link admin-section" id="nav-pms-admin" onclick="goPage('pms-admin',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>PMS Templates
+      </div>
+      <div class="nav-link admin-section" id="nav-users" onclick="goPage('users',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+        </svg>Users
+      </div>
+      <div class="nav-link admin-section" id="nav-company" onclick="goPage('company',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+        </svg>Company
+      </div>
+      <div class="nav-link admin-section" id="nav-reports" onclick="goPage('reports',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>Reports
+      </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar-el">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name-el">Loading…</div>
+          <div class="user-role" id="user-role-el">—</div>
+        </div>
+        <button class="logout-btn" title="Sign out" onclick="doLogout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+            <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT (scroll container per page) ── -->
+  <main class="main-content">
+
+    <!-- Each page file is included here.
+         In production these can be loaded dynamically;
+         for simplicity they are inlined below. -->
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div><div class="page-title">Dashboard</div><div class="page-subtitle" id="dash-date"></div></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh
+        </button>
+      </div>
+      <div class="stats-row" id="dash-stats"></div>
+      <div class="dash-grid">
+        <div class="card"><div class="card-title">Recent Requests</div><div id="dash-recent-reqs"></div></div>
+        <div class="card"><div class="card-title">Today's PMS Progress</div><div id="dash-pms-summary"></div></div>
+      </div>
+      <div class="dash-grid">
+        <div class="card"><div class="card-title">Equipment Running Hours</div><div id="dash-hours-chart" style="margin-top:8px"></div></div>
+        <div class="card"><div class="card-title">Requests by Priority</div><div id="dash-priority-chart" style="margin-top:8px"></div></div>
+      </div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div class="page" id="page-requests">
+      <div class="page-header">
+        <div><div class="page-title">Maintenance Requests</div><div class="page-subtitle">Log and track all maintenance work orders</div></div>
+        <button class="btn btn-primary" onclick="openModal('request')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Request
+        </button>
+      </div>
+      <div class="card" style="padding:14px 16px">
+        <div class="filter-row" id="req-filter-row">
+          <div class="filter-chip active" onclick="setReqFilter('all',this)">All</div>
+          <div class="filter-chip" onclick="setReqFilter('open',this)">Open</div>
+          <div class="filter-chip" onclick="setReqFilter('in_progress',this)">In Progress</div>
+          <div class="filter-chip" onclick="setReqFilter('completed',this)">Completed</div>
+          <div class="filter-chip" onclick="setReqFilter('high',this)">🔴 High Priority</div>
+        </div>
+      </div>
+      <div class="card" style="padding:0"><div class="table-wrap" id="requests-table-wrap"></div></div>
+    </div>
+
+    <!-- EQUIPMENT (User) -->
+    <div class="page" id="page-equipment">
+      <div class="page-header">
+        <div><div class="page-title">Equipment</div><div class="page-subtitle">Equipment assigned to your facility</div></div>
+        <button class="btn btn-primary" onclick="openModal('equipment')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Equipment
+        </button>
+      </div>
+      <div class="card" style="padding:0"><div class="table-wrap" id="equipment-table-wrap"></div></div>
+    </div>
+
+    <!-- SCHEDULED PMS -->
+    <div class="page" id="page-pms">
+      <div class="page-header">
+        <div><div class="page-title">Scheduled PMS</div><div class="page-subtitle">Planned maintenance tasks</div></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label class="form-label" style="margin:0">Date:</label>
+          <input type="date" class="form-input" id="pms-date-pick" style="width:160px" onchange="loadPMSPage()"/>
+        </div>
+      </div>
+      <div class="card" id="pms-prog-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:600" id="pms-prog-label">Loading…</div>
+          <div class="mono text-accent" id="pms-prog-pct" style="font-size:13px;font-weight:700">—</div>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" id="pms-main-prog" style="background:var(--accent)"></div></div>
+      </div>
+      <div id="pms-items-list"></div>
+    </div>
+
+    <!-- PREFERENCES -->
+    <div class="page" id="page-preferences">
+      <div class="page-header">
+        <div><div class="page-title">My Preferences</div><div class="page-subtitle">Personalise your workspace and manage your account</div></div>
+      </div>
+      <div class="pref-section">
+        <div class="pref-section-title">Appearance</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.6">Pick a colour theme. Saved locally and synced to your profile.</p>
+        <div class="theme-picker-grid" id="theme-picker-grid">
+          <div class="theme-swatch swatch-midnight" data-theme="midnight" onclick="applyTheme('midnight')" title="Midnight Teal — dark, focused"><div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div><div class="swatch-name">Midnight</div></div>
+          <div class="theme-swatch swatch-arctic"   data-theme="arctic"   onclick="applyTheme('arctic')"   title="Arctic Blue — dark, cool"><div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div><div class="swatch-name">Arctic</div></div>
+          <div class="theme-swatch swatch-warm"     data-theme="warm"     onclick="applyTheme('warm')"     title="Warm Slate — dark, amber"><div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div><div class="swatch-name">Warm Slate</div></div>
+          <div class="theme-swatch swatch-cloud"    data-theme="cloud"    onclick="applyTheme('cloud')"    title="Cloud — light, clean"><div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div><div class="swatch-name">Cloud</div></div>
+          <div class="theme-swatch swatch-forest"   data-theme="forest"   onclick="applyTheme('forest')"   title="Forest — light, earthy"><div class="swatch-preview"><div class="swatch-dot"></div><div class="swatch-dot"></div><div class="swatch-dot"></div></div><div class="swatch-name">Forest</div></div>
+        </div>
+      </div>
+      <div class="pref-section">
+        <div class="pref-section-title">Profile</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="pref-firstname" placeholder="First Name"/></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="pref-lastname" placeholder="Last Name"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Position</label><input class="form-input" id="pref-position" placeholder="Your job title"/></div>
+        <button class="btn btn-primary btn-sm" onclick="savePreferences()">Save Profile</button>
+      </div>
+      <div class="pref-section">
+        <div class="pref-section-title">Facility Assignment</div>
+        <div class="form-group"><label class="form-label">Current Facility</label><select class="form-input" id="pref-facility"><option value="">Select your facility</option></select></div>
+        <button class="btn btn-ghost btn-sm" onclick="changeFacility()">Change Facility</button>
+      </div>
+      <div class="pref-section">
+        <div class="pref-section-title">Access &amp; Security</div>
+        <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="pref-newpw" placeholder="Leave blank to keep current"/></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="changePassword()">Update Password</button>
+          <button class="btn btn-ghost btn-sm" id="admin-request-btn" onclick="requestAdminRole()">Request Admin Role</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: FACILITIES -->
+    <div class="page" id="page-facilities">
+      <div class="page-header">
+        <div><div class="page-title">Facilities</div><div class="page-subtitle">Manage all operational facilities</div></div>
+        <button class="btn btn-primary" onclick="openModal('facility')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Facility
+        </button>
+      </div>
+      <div class="card" style="padding:0"><div class="table-wrap" id="facilities-table-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN: ALL EQUIPMENT -->
+    <div class="page" id="page-admin-equipment">
+      <div class="page-header">
+        <div><div class="page-title">All Equipment</div><div class="page-subtitle">Full CRUD — all equipment across all facilities</div></div>
+        <button class="btn btn-primary" onclick="openModal('equipment')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Equipment
+        </button>
+      </div>
+      <div class="card" style="padding:0"><div class="table-wrap" id="admin-equipment-table-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN: ACTIVITIES -->
+    <div class="page" id="page-activities">
+      <div class="page-header">
+        <div><div class="page-title">Maintenance Activities</div><div class="page-subtitle">Define activity types and templates</div></div>
+        <button class="btn btn-primary" onclick="openModal('activity')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Activity
+        </button>
+      </div>
+      <div class="card" style="padding:0"><div class="table-wrap" id="activities-table-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN: PMS TEMPLATES -->
+    <div class="page" id="page-pms-admin">
+      <div class="page-header">
+        <div><div class="page-title">PMS Schedule Templates</div><div class="page-subtitle">Create and manage planned maintenance schedules</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="bulkGenPMS()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Bulk Generate 30 Days
+          </button>
+          <button class="btn btn-primary" onclick="openModal('pms-schedule')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Schedule
+          </button>
+        </div>
+      </div>
+      <div class="card" style="padding:0"><div class="table-wrap" id="pms-admin-table-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN: USERS -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <div><div class="page-title">Users</div><div class="page-subtitle">Manage roles, access and facility assignments</div></div>
+      </div>
+      <div class="card" style="padding:0"><div class="table-wrap" id="users-table-wrap"></div></div>
+    </div>
+
+    <!-- ADMIN: COMPANY -->
+    <div class="page" id="page-company">
+      <div class="page-header">
+        <div><div class="page-title">Company</div><div class="page-subtitle">Manage company details</div></div>
+      </div>
+      <div class="pref-section">
+        <div class="pref-section-title">Company Details</div>
+        <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" id="co-name" placeholder="Your Company Ltd"/></div>
+        <div class="form-group"><label class="form-label">Address</label><textarea class="form-input" id="co-address" placeholder="Full address"></textarea></div>
+        <button class="btn btn-primary btn-sm" onclick="saveCompany()">Save Company</button>
+      </div>
+    </div>
+
+    <!-- ADMIN: REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="page-header">
+        <div><div class="page-title">Reports &amp; Analytics</div><div class="page-subtitle">Maintenance performance insights and KPIs</div></div>
+        <button class="btn btn-ghost" onclick="loadReports()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh
+        </button>
+      </div>
+      <div class="stats-row" id="report-stats"></div>
+      <div class="report-grid">
+        <div class="card"><div class="card-title">PMS Completion by Facility</div><div id="report-platform-bars"></div></div>
+        <div class="card"><div class="card-title">Request Status Breakdown</div><div id="report-status-bars"></div></div>
+      </div>
+      <div class="report-grid">
+        <div class="card"><div class="card-title">Running Hours per Equipment</div><div id="report-hours-bar" style="margin-top:8px"></div></div>
+        <div class="card"><div class="card-title">Requests by Priority</div><div id="report-priority-bar" style="margin-top:8px"></div></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── BOTTOM NAV (Mobile / Tablet) ── -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bottom-nav-item active" id="bnav-dashboard" onclick="goPageMobile('dashboard','bnav-dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="bottom-nav-item" id="bnav-requests" onclick="goPageMobile('requests','bnav-requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+      Requests
+    </button>
+    <button class="bottom-nav-item" id="bnav-pms" onclick="goPageMobile('pms','bnav-pms')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      PMS
+    </button>
+    <button class="bottom-nav-item" id="bnav-more" onclick="toggleDrawer()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      More
+    </button>
+  </nav>
+
+  <div class="bottom-nav-drawer" id="bottom-drawer"></div>
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+</div><!-- /#app-view -->
+
+<!-- ── GLOBAL MODAL ── -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCRIPTS  — load order matters
+     1. firebase.config.js  (in <head>)
+     2. app.js              — shared core
+     3. auth.js             — authentication
+     4. page scripts        — per-page logic
+══════════════════════════════════════════════════════ -->
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/requests.js"></script>
+<script src="js/pages/equipment.js"></script>
+<script src="js/pages/pms.js"></script>
+<script src="js/pages/preferences.js"></script>
+<script src="js/pages/facilities.js"></script>
+<script src="js/pages/activities.js"></script>
+<script src="js/pages/pms-admin.js"></script>
+<script src="js/pages/users.js"></script>
+<script src="js/pages/company.js"></script>
+<script src="js/pages/reports.js"></script>
+
+</body>
+</html>
