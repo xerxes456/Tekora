@@ -25,7 +25,7 @@
 // ── Bootstrap the default admin on very first app load ─────────────────
 async function initializeDefaultAdmin() {
   const ADMIN_EMAIL = 'Admin@tekora.example';
-  const ADMIN_PW    = 'Admin1234'; // Must meet Firebase password requirements (min 6 chars, etc.)
+  const ADMIN_PW    = 'Admin';
   try {
     const methods = await auth.fetchSignInMethodsForEmail(ADMIN_EMAIL);
     if (methods.length > 0) return; // already exists

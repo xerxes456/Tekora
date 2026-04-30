@@ -136,23 +136,16 @@ body * {
 /* ══════════════════════════════════════════
    2. BASE
 ══════════════════════════════════════════ */
-html {
+html, body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   line-height: 1.5;
-}
-body {
-  height: 100%;
-  /* overflow is managed per-container — never block it on body globally */
-  overflow: hidden;
-}
-/* When auth view is shown, body CAN scroll (the auth card may be taller than viewport) */
-body:has(#auth-view:not([style*="display: none"])):has(#app-view:not(.visible)) {
-  overflow: visible;
-}
+  /* Body itself never scrolls — children do */
+  }
+
 input, select, textarea, button { font-family: inherit; }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -165,18 +158,12 @@ input, select, textarea, button { font-family: inherit; }
 #auth-view {
   min-height: 100vh;
   display: flex;
-  align-items: flex-start;        /* allows content taller than viewport to scroll */
+  align-items: flex-start;
   justify-content: center;
   background: var(--bg);
   position: relative;
-  overflow-y: auto;               /* auth scrolls on small/zoomed screens */
-  overflow-x: hidden;
-  padding: 24px 16px;             /* breathing room on mobile */
-  -webkit-overflow-scrolling: touch;
-}
-/* Re-centre card when there is enough vertical room */
-@media (min-height: 680px) {
-  #auth-view { align-items: center; padding: 24px 16px; }
+  overflow: hidden;
+  padding: 24px 16px;
 }
 #auth-view::before {
   content: '';
@@ -211,6 +198,8 @@ input, select, textarea, button { font-family: inherit; }
   min-height: 0;          /* ← critical: allows flex child to shrink */
   overflow: hidden;       /* main-content itself does NOT scroll */
   position: relative;
+  overflow-y: auto; 
+
 }
 
 /* Individual pages scroll */
@@ -218,15 +207,17 @@ input, select, textarea, button { font-family: inherit; }
   display: none;
   flex-direction: column;
   gap: 22px;
-  height: 100%;                    /* fill main-content exactly */
-  overflow-y: auto;                /* each page is its own scroll container */
+  height: 100%;           /* fill main-content exactly */
+  overflow-y: auto;       /* THIS is the scroll container */
   overflow-x: hidden;
-  padding: 28px 32px 48px;        /* extra bottom breathing room */
+  padding: 28px 32px;
+  padding-bottom: 28px 32px calc(bottom-nav-h + 32px);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;   /* prevent scroll chaining to body */
   animation: fadeIn .2s ease;
+  overscroll-behavior: contain; 
 }
+
 .page.active { display: flex; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -413,8 +404,7 @@ input, select, textarea, button { font-family: inherit; }
    9. BUTTONS
 ══════════════════════════════════════════ */
 .btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 9px 16px; border-radius: 8px; border: none;
+  display: inline-flex; align-items: center; gap: 7px;   padding: 20px 16px; border-radius: 8px; border: none;
   cursor: pointer; font-family: inherit; font-size: 13px;
   font-weight: 600; white-space: nowrap;
 }
@@ -757,10 +747,10 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
   .bottom-nav  { display: flex; }
   #app-view.visible { flex-direction: column; }
 
-  /* On mobile each page must clear the fixed bottom nav */
+  /* On mobile the page padding accounts for the fixed bottom nav */
   .page {
-    padding: 16px 16px calc(var(--bottom-nav-h) + 32px);
-    /* overscroll-behavior already set on .page globally */
+    padding: 16px 16px calc(var(--bottom-nav-h) + 20px);
+    overscroll-behavior: contain;
   }
 
   .stats-row   { grid-template-columns: 1fr 1fr; }
