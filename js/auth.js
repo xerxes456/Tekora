@@ -108,7 +108,7 @@ async function doLogout() {
   currentUser = null; userProfile = null;
   $('app-view').classList.remove('visible');
   $('app-view').style.display = 'none';
-  $('auth-view').style.display = 'flex';
+  $('auth-view').style.display = 'none';
   document.querySelectorAll('.admin-section').forEach(el => el.style.display = 'none');
 }
 

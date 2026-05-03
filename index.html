@@ -84,7 +84,7 @@
                autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
       </div>
       <button class="btn btn-primary" id="login-btn"
-              style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:24px"
+              style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:30px"
               onclick="doLogin()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
           <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
@@ -120,7 +120,7 @@
                onkeydown="if(event.key==='Enter')doRegister()"/>
       </div>
       <button class="btn btn-primary" id="register-btn"
-              style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:6px"
+              style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:30px"
               onclick="doRegister()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
           <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
@@ -129,13 +129,10 @@
         </svg>
         Create Account
       </button>
-      <div style="margin-top:14px;background:var(--surface2);border-radius:8px;padding:10px 13px;font-size:11px;color:var(--text3);border:1px solid var(--border)">
-        <strong style="color:var(--text2)">Note:</strong> Role is assigned by the Admin after registration.
-        Default login: <span style="color:var(--accent)">Admin@tekora.example</span>
-      </div>
     </div>
   </div>
-</div>
+ </div>
+
 
 <!-- ══════════════════════════════════════════════════════
      APP VIEW
@@ -512,4 +509,8 @@
 <script src="js/pages/reports.js"></script>
 
 </body>
+ <footer>
+      <div style="margin-top:auto;background:var(--surface1);text-align:center;;border-radius:8px;padding: 20px 0; width: 100%;font-size:11px;color:var(--text3)"> Copyright &copy; <script>document.write(new Date().getFullYear())</script><span style="color:var(--accent)"> : Zurivice Concepts</span></p>
+      </div>
+    </footer>
 </html>
