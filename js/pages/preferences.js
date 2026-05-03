@@ -61,7 +61,8 @@ async function changePassword() {
   const pw = $('pref-newpw').value;
   if (!pw || pw.length < 8) { toast('Password must be at least 8 characters', 'error'); return; }
   try {
-    await currentUser.updatePassword(pw);
+    const { error } = await _sb.auth.updateUser({ password: pw });
+    if (error) throw new Error(error.message);
     $('pref-newpw').value = '';
     toast('Password updated');
   } catch (e) { toast(e.message, 'error'); }

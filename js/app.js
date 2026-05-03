@@ -12,7 +12,7 @@
  *    - Theme system (5 themes + localStorage persistence)
  *    - Global modal engine (MODAL_CONFIGS)
  *
- *  Depends on: js/firebase.config.js
+ *  Depends on: js/supabase.config.js
  * ============================================================
  */
 
