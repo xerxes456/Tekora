@@ -206,7 +206,7 @@ insert into users (id, first_name, last_name, email, position, role, is_admin)
 values (
   'd57b7564-04ab-4487-b0ab-60c86583e900',
   'Admin', 'User',
-  'Admin@tekora.example',
+  'eli42dan@gmail.com',
   'System Administrator',
   'admin', true
 )
