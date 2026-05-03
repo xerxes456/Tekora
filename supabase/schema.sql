@@ -204,7 +204,7 @@ end $$;
 -- ============================================================
 insert into users (id, first_name, last_name, email, position, role, is_admin)
 values (
-  '00000000-0000-0000-0000-000000000000',
+  'd57b7564-04ab-4487-b0ab-60c86583e900',
   'Admin', 'User',
   'Admin@tekora.example',
   'System Administrator',
